@@ -1,0 +1,41 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: service-1
+  datasource:
+    url: jdbc:postgresql://localhost:5435/moderation
+    username: moderation
+    password: moderation
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: moderation-service-1
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+app:
+  kafka:
+    topic-in: topic-1
+    topic-out: topic-2
+  idempotency:
+    ttl-hours: 4872
+  service2:
+    base-url: http://localhost:8082
+    retry:
+      max-attempts: 3
+      delay-ms: 500
