@@ -23,4 +23,9 @@ public class IdempotencyService {
                 setIfAbsent(key, "processed", Duration.ofHours(ttlHours));
         return Boolean.TRUE.equals(inserted);
     }
+
+    public void clear(String eventId) {
+        String key = "event:" + eventId;
+        redisTemplate.delete(key);
+    }
 }

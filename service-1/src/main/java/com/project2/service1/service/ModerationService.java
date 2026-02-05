@@ -4,6 +4,7 @@ import com.project2.service1.client.EnrichmentClient;
 import com.project2.service1.dto.EnrichmentResponse;
 import com.project2.service1.dto.IncomingEvent;
 import com.project2.service1.dto.ModeratedEvent;
+import com.project2.service1.entity.ActiveCase;
 import com.project2.service1.producer.Topic2Producer;
 import com.project2.service1.repository.ActiveCaseRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ModerationService {
         if(activeCaseRepository.existsByClientIdAndCategoryAndStatus(event.clientId(),
                 event.category(),
                 ACTIVE_STATUS)){
-            log.info("Already active case for: eventId={} category={}", event.eventId(), event.category());
+            log.info("Already active case for: clientID={} category={}", event.clientId(), event.category());
             return;
         }
 
@@ -45,10 +46,18 @@ public class ModerationService {
         ModeratedEvent outEvent = new ModeratedEvent(
                 event.eventId(), event.clientId(),
                 event.caseId(), event.category(),
-                event.createdAt(), "APPROVED", "PASSED_ALL_RULES"
+                event.createdAt(), "APPROVED", "PASSED_ALL_RULES",
+                enrichment.allowedOutsideWorkingHours(),
+                enrichment.priority()
         );
 
         topic2Producer.publish(outEvent);
+
+        ActiveCase activeCase = new ActiveCase();
+        activeCase.setClientId(event.clientId());
+        activeCase.setCategory(event.category());
+        activeCase.setStatus(ACTIVE_STATUS);
+        activeCaseRepository.save(activeCase);
 
     }
 }

@@ -17,7 +17,9 @@ spring:
       host: localhost
       port: 6379
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:19092
+    listener:
+      ack-mode: manual
     consumer:
       group-id: moderation-service-1
       enable-auto-commit: false

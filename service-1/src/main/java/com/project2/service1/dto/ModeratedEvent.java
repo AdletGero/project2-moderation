@@ -9,6 +9,8 @@ public record ModeratedEvent(
         String category,
         Instant createdAt,
         String moderationResult,
-        String reason
+        String reason,
+        Boolean allowedOutsideWorkingHours,
+        Integer priority
 ) {
 }
