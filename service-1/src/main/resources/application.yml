@@ -41,3 +41,12 @@ app:
     retry:
       max-attempts: 3
       delay-ms: 500
+
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: health,info,prometheus
+        endpoint:
+          health:
+            show-details: when_authorized

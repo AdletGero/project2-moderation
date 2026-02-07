@@ -48,6 +48,70 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+  service-1:
+    build:
+      context: ../service-1
+      dockerfile: Dockerfile
+    container_name: service-1
+    depends_on:
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      service-2:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/moderation
+      SPRING_DATASOURCE_USERNAME: moderation
+      SPRING_DATASOURCE_PASSWORD: moderation
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_SERVICE2_BASE_URL: http://service-2:8082
+    ports:
+      - "8081:8081"
+
+  service-2:
+      build:
+        context: ../service-2
+        dockerfile: Dockerfile
+      container_name: service-2
+      depends_on:
+        redis:
+          condition: service_healthy
+      environment:
+        SPRING_DATA_REDIS_HOST: redis
+        SPRING_DATA_REDIS_PORT: 6379
+      ports:
+        - "8082:8082"
+#  prometheus:
+#    image: prom/prometheus:v2.53.1
+#    container_name: prometheus
+#    ports:
+#      - "9090:9090"
+#    volumes:
+#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#
+#  grafana:
+#      image: grafana/grafana:11.1.0
+#      container_name: grafana
+#      ports:
+#        - "3000:3000"
+#      depends_on:
+#        - prometheus
+#      environment:
+#        GF_SECURITY_ADMIN_USER: admin
+#        GF_SECURITY_ADMIN_PASSWORD: admin
+#      volumes:
+#        - grafana_data:/var/lib/grafana
+
+
 volumes:
   kafka_data:
     name: kafka_data
+  grafana_data:
+    name: grafana_data
