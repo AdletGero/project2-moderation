@@ -94,9 +94,12 @@ function createEvent() {
     };
 }
 
-async function runLoad(totalMessages = 10000) {
+async function runLoad(totalMessages = 10000, targetRps = 100) {
     await producer.connect();
     console.log("Started load generation...");
+    const intervalMs = 1000 / targetRps;
+    let nextTick = Date.now();
+
 
     for (let i = 0; i < totalMessages; i++) {
         const event = createEvent();
@@ -106,11 +109,17 @@ async function runLoad(totalMessages = 10000) {
             messages: [{ value: JSON.stringify(event) }]
         });
 
-        await new Promise(resolve => setTimeout(resolve, 10));
+        nextTick += intervalMs;
+        const sleepMs = Math.max(0, Math.round(nextTick - Date.now()));
+        if (sleepMs > 0) {
+            await new Promise(resolve => setTimeout(resolve, sleepMs));
+        }
     }
 
     console.log("Load finished");
     await producer.disconnect();
 }
 
-runLoad();
+const totalMessages = Number(process.env.TOTAL_MESSAGES ?? 10000);
+const targetRps = Number(process.env.TARGET_RPS ?? 100);
+runLoad(totalMessages, targetRps);

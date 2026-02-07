@@ -11,7 +11,6 @@ import java.time.Duration;
 @Service
 @RequiredArgsConstructor
 public class IdempotencyService {
-//    private final StringRedisTemplate stringRedisTemplate;
     private final RedisTemplate redisTemplate;
 
     @Value("${app.idempotency.ttl-hours:4872}")
